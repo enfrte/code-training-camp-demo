@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Teperature settings</title>
+</head>
+<body>
+
+  <h1>Teperature settings</h1>
+  <p>Monitor your environment by setting a temperature range. If the temperature is not within this range, you will receive a notification.</p>
+  <p>Your temperature range for <span class="tempSetLabel">"<%= temperature_settings.setting_name %>"</span> is currently <%= temperature_settings.min_temp %> - <%= temperature_settings.max_temp %> °C</p>
+
+  <form method="post" action="/settings/update">
+    <div>
+      Min temp: <span id="min_temp_val"> </span><input type="range" min="0" max="100" value="<%= temperature_settings.min_temp %>" name="min_temp" id="min_temp">
+    </div>
+    <div>
+      Max temp: <span id="max_temp_val"> </span><input type="range" min="0" max="100" value="<%= temperature_settings.max_temp %>" name="max_temp" id="max_temp">
+    </div>
+    <div>
+      Setting name: <input type="text" name="setting_name" value="<%= temperature_settings.setting_name %>" placeholder="Enter a setting name">
+    </div>
+    <div>
+      <input type="submit" value="Update">
+    </div>
+  </form>
+
+  <script>
+    var minTempSlider = document.getElementById('min_temp'); 
+    var maxTempSlider = document.getElementById('max_temp'); 
+    var minTempSliderValue = document.getElementById('min_temp_val');
+    var maxTempSliderValue = document.getElementById('max_temp_val');
+
+    minTempSliderValue.innerText = minTempSlider.value;
+    maxTempSliderValue.innerText = maxTempSlider.value;
+    //document.getElementById('min_temp_val').innerText = minTempSlider.value;
+    //document.getElementById('max_temp_val').innerText = maxTempSlider.value;
+
+    minTempSlider.oninput = function() {
+      minTempSliderValue.innerText = this.value;
+    }
+
+    maxTempSlider.oninput = function() {
+      maxTempSliderValue.innerText = this.value;
+    }
+
+  </script>
+
+  <script src=""></script>
+</body>
+</html>
