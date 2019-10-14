@@ -1,4 +1,8 @@
+const IFTTT = require('./sensitive.js');
+const key = IFTTT.key;
+
 const NodeCouchDb = require('node-couchdb');
+const fetch = require('node-fetch');
 
 // couchDB database names
 const temperatureDb = "temperature";
@@ -46,17 +50,33 @@ function getTemperatureSetting() {
     try {
       const temperatureSettings = await getTemperatureSetting();
       const currentTemperature = await getCurrentTemperature();
-  
+
       if (currentTemperature < temperatureSettings.min_temp || currentTemperature > temperatureSettings.max_temp) {
-        console.log('Temp NOT in range!!!');
-  
+        console.log('Temp NOT in range!');
+        const body = { value1: currentTemperature };
+        
+        fetch('https://maker.ifttt.com/trigger/temp_reading/with/key/' + key, {
+          method: 'post',
+          body:    JSON.stringify(body),
+          headers: { 'Content-Type': 'application/json' },
+        })
+        .then(function (res) {
+          //res.json()
+          res.text();
+          //console.log(res)
+        })
+        .then(function (text) {
+          console.log(text)
+        })
+        .catch(function (err) {
+          console.log('node-fetch error: ', err)
+        });
       }
       else {
-        console.log('Temp in range :)');
-  
+        console.log('Temp in range :)')
       }
     } catch(error) {
-      console.error(error);
+      console.error('try-catch threw: ', error)
     } 
   }
 
