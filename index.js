@@ -41,12 +41,19 @@ const temperatureSettingsDb = "temperature_settings";
 // app index
 app.get('/settings', function(req, res){
   //res.render('index'); // test page is working
-  couch.get(temperatureSettingsDb, "/_all_docs?descending=true&limit=1&include_docs=true").then(
+  /** CouchDB range view
+    function(doc) {
+      if(doc.timestamp) {
+          emit(doc.timestamp, doc);
+      }
+    }
+   */
+  couch.get(temperatureSettingsDb, "/_design/settings/_view/range?descending=true&limit=1").then(
     function (data, headers, status) {
       //console.log(data.data.rows); // if you want to see the output in the node console
       // send a data object called temperature_settings to view/index.ejs  
       res.render('settings', {
-        temperature_settings: data.data.rows[0].doc
+        temperature_settings: data.data.rows[0].value
       });
     },
     function (err) { 
@@ -61,6 +68,7 @@ app.post('/settings/update', function(req, res){
   const minTemp = req.body.min_temp;
   const maxTemp = req.body.max_temp;
   const settingName = req.body.setting_name;
+  const timestamp = new Date().getTime();
   // console.log(minTemp, maxTemp, settingName);
 
   // Store settings in Couch DB
@@ -70,7 +78,8 @@ app.post('/settings/update', function(req, res){
       _id: id,
       min_temp: minTemp,
       max_temp: maxTemp,
-      setting_name: settingName
+      setting_name: settingName,
+      timestamp: timestamp
     }).then(
       function (data, headers, status) {
         res.redirect('/settings'); 
