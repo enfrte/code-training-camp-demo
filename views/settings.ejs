@@ -20,9 +20,10 @@
       Max temp: <span id="max_temp_val"> </span><input type="range" min="0" max="100" value="<%= temperature_settings.max_temp %>" name="max_temp" id="max_temp">
     </div>
     <div>
-      Setting name: <input type="text" name="setting_name" value="<%= temperature_settings.setting_name %>" placeholder="Enter a setting name">
+      Setting name: <input type="text" name="setting_name" value="<%= temperature_settings.setting_name %>" placeholder="Enter a setting name" required>
     </div>
     <div>
+      <input type="hidden" name="timestamp">
       <input type="submit" value="Update">
     </div>
   </form>

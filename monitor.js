@@ -1,4 +1,17 @@
+/**
+ * To Do:
+ * Add timer check. Send notification if last one was more than 3600 secs ago. 
+ * Add node-cron. 
+ * Separate the IFTTT notification into its own function (maybe).
+ */
 const IFTTT = require('./sensitive.js');
+/** Contents of sensitive.js
+const IFTTT = {
+    key: 'your_secret_key',
+    ...other sensitive credentials
+}
+module.exports = IFTTT;
+ */
 const key = IFTTT.key;
 
 const NodeCouchDb = require('node-couchdb');
