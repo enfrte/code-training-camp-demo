@@ -15,31 +15,36 @@
 <body>
   <div class="container">
     <h1>Temperature settings</h1>
-    <p>Monitor your environment by setting a temperature range. If the temperature is not within this range, you will receive a notification.</p>
-    <p>Your temperature range for <span class="tempSetLabel">"<%= temperature_settings.setting_name %>"</span> is currently between <%= temperature_settings.min_temp %> and <%= temperature_settings.max_temp %> °C</p>
 
-    <form method="post" action="/settings/update">
-      <input id="min_temp" type="hidden" name="min_temp" value="<%= temperature_settings.min_temp %>">
-      <input id="max_temp" type="hidden" name="max_temp" value="<%= temperature_settings.max_temp %>">
-      <input type="hidden" name="timestamp">
-
-      <div>
-        Setting name: <input type="text" name="setting_name" value="<%= temperature_settings.setting_name %>" placeholder="Enter a setting name" required>
-      </div>
-      <div>
-        <input type="submit" value="Update">
-      </div>
-    </form>
-
-    <div class="temperature-range-slider-container">
-      <div id="temperature-range-slider"></div>
+    <div class="row">
+      <div class="col m10">
+        <p>Monitor your environment by setting a temperature range. If the temperature is not within this range, you will receive a notification.</p>
+        <p>Your temperature range for <span class="tempSetLabel">"<%= temperature_settings.setting_name %>"</span> is currently between <%= temperature_settings.min_temp %> and <%= temperature_settings.max_temp %> °C</p>
+        <form method="post" action="/settings/update">
+          <input id="min_temp" type="hidden" name="min_temp" value="<%= temperature_settings.min_temp %>">
+          <input id="max_temp" type="hidden" name="max_temp" value="<%= temperature_settings.max_temp %>">
+          <input type="hidden" name="timestamp">
+          <div>
+            Setting name: <input type="text" name="setting_name" value="<%= temperature_settings.setting_name %>" placeholder="Enter a setting name" required>
+          </div>
+          <div>
+            <input type="submit" value="Update">
+          </div>
+        </form>
     </div>
 
+    <div class="col m2">
+      <div class="temperature-range-slider-container">
+        <div id="temperature-range-slider"></div>
+      </div>
+    </div>
   </div>
 
+</div>
 
   <script type="text/javascript" src="js/materialize.min.js"></script>
   <script type="text/javascript" src="js/nouislider.min.js"></script>
+  <script type="text/javascript" src="js/wNumb.js"></script>
 
   <script>
       let min_temp = <%= temperature_settings.min_temp %>;
@@ -62,7 +67,11 @@
         pips: {
           mode: 'range',
           density: 3
-        }
+        },
+        format: wNumb({
+          decimals: 0,
+          suffix: '°C'
+        })
       });
   
       // Set both slider handles on a slider with two handles
