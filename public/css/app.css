@@ -2,7 +2,14 @@
 .temperature-range-slider-container {
   background-color: gainsboro;
   padding: 20px;
-  width: 105px
+  width: 105px;
+  margin-top: 20px;
+}
+
+.temperature-range-slider-column {
+  display: flex;
+  justify-content: center;
+  align-content: center;
 }
 
 /* The actual, visible handles. Style these any way you like! */
@@ -49,4 +56,19 @@
 
 .noUi-pips {
   color: #777
+}
+
+.temperature-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.temperature-row-container {
+  display: flex;
+  align-items: center;
+}
+
+.temperature-column-container {
+  display: flex;
+  flex-direction: column;
 }

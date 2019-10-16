@@ -16,24 +16,34 @@
   <div class="container">
     <h1>Temperature settings</h1>
 
-    <div class="row">
-      <div class="col m10">
+    <div class="row temperature-row-container">
+      <div class="col m8 temperature-column-container">
         <p>Monitor your environment by setting a temperature range. If the temperature is not within this range, you will receive a notification.</p>
-        <p>Your temperature range for <span class="tempSetLabel">"<%= temperature_settings.setting_name %>"</span> is currently between <%= temperature_settings.min_temp %> and <%= temperature_settings.max_temp %> °C</p>
-        <form method="post" action="/settings/update">
+        <p>Your temperature range for <span class="tempSetLabel">"<%= temperature_settings.setting_name %>"</span> is currently between <%= temperature_settings.min_temp %> and <%= temperature_settings.max_temp %>°C</p>
+        <form class="temperature-form" method="post" action="/settings/update">
           <input id="min_temp" type="hidden" name="min_temp" value="<%= temperature_settings.min_temp %>">
           <input id="max_temp" type="hidden" name="max_temp" value="<%= temperature_settings.max_temp %>">
           <input type="hidden" name="timestamp">
-          <div>
-            Setting name: <input type="text" name="setting_name" value="<%= temperature_settings.setting_name %>" placeholder="Enter a setting name" required>
+          
+          <div class="row">
+            <div class="input-field col s12 m6">
+              <input value="<%= temperature_settings.setting_name %>" id="setting_name" type="text" name="setting_name" class="validate" placeholder="Enter a setting name" required>
+              <label class="active" for="setting_name">Setting name</label>
+            </div>
           </div>
-          <div>
-            <input type="submit" value="Update">
+   
+          <div class="row">
+            <div class="input-field col s12 m6">
+              <button class="btn waves-effect waves-light btn-large" type="submit" name="action">Submit
+                  <i class="material-icons right">send</i>
+              </button>
+            </div>
           </div>
+
         </form>
     </div>
 
-    <div class="col m2">
+    <div class="col m4 temperature-range-slider-column">
       <div class="temperature-range-slider-container">
         <div id="temperature-range-slider"></div>
       </div>
@@ -80,11 +90,11 @@
       temperatureRangeSlider.noUiSlider.on('update', function( values, handle ) {
         // note, the value of the slider handles depends on the slider direction: 'rtl', 'ltr'
         if (handle === 0) { 
-          min_temp = values[handle];
+          min_temp = values[handle].slice(0, -2); // slice - we need to trim the format.suffix from the value
           document.querySelector('#min_temp').value = min_temp;
         }
         else if (handle === 1) { 
-          max_temp = values[handle];
+          max_temp = values[handle].slice(0, -2);
           document.querySelector('#max_temp').value = max_temp; 
         }
       });
