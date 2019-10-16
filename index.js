@@ -31,6 +31,7 @@ app.set('view engine','ejs'); // Set the template engine.
 app.set('views',path.join(__dirname, 'views')); // A directory or an array of directories for the application's views. If an array, the views are looked up in the order they occur in the array.
 
 // app.use() Mounts the specified middleware function or functions at the specified path: the middleware function is executed when the base of the requested path matches path.
+app.use(express.static(path.join(__dirname,"public"))); // set a public static directory 
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
