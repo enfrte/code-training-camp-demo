@@ -6,55 +6,80 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/nouislider.min.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/app.css"  media="screen,projection"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Teperature settings</title>
 </head>
 <body>
   <div class="container">
-    <h1>Teperature settings</h1>
+    <h1>Temperature settings</h1>
     <p>Monitor your environment by setting a temperature range. If the temperature is not within this range, you will receive a notification.</p>
-    <p>Your temperature range for <span class="tempSetLabel">"<%= temperature_settings.setting_name %>"</span> is currently <%= temperature_settings.min_temp %> - <%= temperature_settings.max_temp %> °C</p>
+    <p>Your temperature range for <span class="tempSetLabel">"<%= temperature_settings.setting_name %>"</span> is currently between <%= temperature_settings.min_temp %> and <%= temperature_settings.max_temp %> °C</p>
 
     <form method="post" action="/settings/update">
-      <div class="range-field">
-        Min temp: <span id="min_temp_val"> </span><input type="range" min="0" max="100" value="<%= temperature_settings.min_temp %>" name="min_temp" id="min_temp">
-      </div>
-      <div class="range-field">
-        Max temp: <span id="max_temp_val"> </span><input type="range" min="0" max="100" value="<%= temperature_settings.max_temp %>" name="max_temp" id="max_temp">
-      </div>
+      <input id="min_temp" type="hidden" name="min_temp" value="<%= temperature_settings.min_temp %>">
+      <input id="max_temp" type="hidden" name="max_temp" value="<%= temperature_settings.max_temp %>">
+      <input type="hidden" name="timestamp">
+
       <div>
         Setting name: <input type="text" name="setting_name" value="<%= temperature_settings.setting_name %>" placeholder="Enter a setting name" required>
       </div>
       <div>
-        <input type="hidden" name="timestamp">
         <input type="submit" value="Update">
       </div>
     </form>
+
+    <div class="temperature-range-slider-container">
+      <div id="temperature-range-slider"></div>
+    </div>
+
   </div>
-  
-  <script>
-    var minTempSlider = document.getElementById('min_temp'); 
-    var maxTempSlider = document.getElementById('max_temp'); 
-    var minTempSliderValue = document.getElementById('min_temp_val');
-    var maxTempSliderValue = document.getElementById('max_temp_val');
 
-    minTempSliderValue.innerText = minTempSlider.value;
-    maxTempSliderValue.innerText = maxTempSlider.value;
-    //document.getElementById('min_temp_val').innerText = minTempSlider.value;
-    //document.getElementById('max_temp_val').innerText = maxTempSlider.value;
 
-    minTempSlider.oninput = function() {
-      minTempSliderValue.innerText = this.value;
-    }
-
-    maxTempSlider.oninput = function() {
-      maxTempSliderValue.innerText = this.value;
-    }
-
-  </script>
-
-  <!--JavaScript at end of body for optimized loading-->
   <script type="text/javascript" src="js/materialize.min.js"></script>
+  <script type="text/javascript" src="js/nouislider.min.js"></script>
+
+  <script>
+      let min_temp = <%= temperature_settings.min_temp %>;
+      let max_temp = <%= temperature_settings.max_temp %>;
+
+      var temperatureRangeSlider = document.getElementById('temperature-range-slider');
+  
+      noUiSlider.create(temperatureRangeSlider, {
+        start: [18, 32],
+        tooltips: [true, true],
+        connect: true,
+        step: 1,
+        orientation: "vertical",
+        margin: 0,
+        direction: 'rtl',
+        range: {
+            'min': 0,
+            'max': 38
+        },
+        pips: {
+          mode: 'range',
+          density: 3
+        }
+      });
+  
+      // Set both slider handles on a slider with two handles
+      temperatureRangeSlider.noUiSlider.set([min_temp, max_temp]);
+
+      temperatureRangeSlider.noUiSlider.on('update', function( values, handle ) {
+        // note, the value of the slider handles depends on the slider direction: 'rtl', 'ltr'
+        if (handle === 0) { 
+          min_temp = values[handle];
+          document.querySelector('#min_temp').value = min_temp;
+        }
+        else if (handle === 1) { 
+          max_temp = values[handle];
+          document.querySelector('#max_temp').value = max_temp; 
+        }
+      });
+    </script>
+
 </body>
 </html>

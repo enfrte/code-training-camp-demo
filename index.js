@@ -39,6 +39,10 @@ app.use(express.urlencoded({extended:false}));
 const temperatureDb = "temperature";
 const temperatureSettingsDb = "temperature_settings";
 
+app.get('/', function(req, res){
+  res.render('index'); // test page is working
+});
+
 // app index
 app.get('/settings', function(req, res){
   //res.render('index'); // test page is working
