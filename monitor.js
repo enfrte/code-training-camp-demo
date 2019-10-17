@@ -1,8 +1,7 @@
 /**
+ * You would probably want to call this with something like cron-node. 
  * To Do:
- * Add timer check. Send notification if last one was more than 3600 secs ago. 
- * Add node-cron. 
- * Separate the IFTTT notification into its own function (maybe).
+ * Add timer check. Only send notification if last one was more than 3600 secs ago. Make another db doc for this. 
  */
 const IFTTT = require('./sensitive.js');
 /** Contents of sensitive.js
@@ -19,7 +18,6 @@ const fetch = require('node-fetch');
 
 // couchDB database names
 const temperatureDb = "temperature";
-const temperatureSettingsDb = "temperature_settings";
 
 const couch = new NodeCouchDb({
   // credentials used for couchDb server admin 
@@ -30,32 +28,51 @@ const couch = new NodeCouchDb({
 });
 
 function getTemperatureSetting() {
-    let temperatureSettings;
     return new Promise(function(resolve, reject) {
-      couch.get(temperatureSettingsDb, "/_all_docs?descending=true&limit=1&include_docs=true").then(
+      couch.get(temperatureDb, "/_design/settings/_view/range?descending=true&limit=1").then(
         function (data, headers, status) {
-          temperatureSettings = data.data.rows[0].doc;
+          const temperatureSettings = data.data.rows[0].value;
           resolve(temperatureSettings);
         },
         function (err) { 
-          console.log(err); // do something else
+          console.log('getTemperatureSetting', err); // do something else
         }
       );
     });
   }
 
   function getCurrentTemperature() {
-    let currentTemperature;
     return new Promise(function(resolve, reject) {
-      couch.get(temperatureDb, "/_all_docs?descending=true&limit=1&include_docs=true").then(
+      couch.get(temperatureDb, "/_design/temperature/_view/get-temperature?descending=true&limit=1").then(
         function (data, headers, status) {
-          currentTemperature = data.data.rows[0].doc.temperatureValue;
+          const currentTemperature = data.data.rows[0].value.temperatureValue;
           resolve(currentTemperature);
         },
         function (err) { 
-          console.log(err); // do something else
+          console.log('getCurrentTemperature', err); // do something else
         }
       );
+    });
+  }
+
+  function sendIFTTTNotification(currentTemperature) {
+    const body = { value1: currentTemperature };
+        
+    fetch('https://maker.ifttt.com/trigger/temp_reading/with/key/' + key, {
+      method: 'post',
+      body:    JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+    })
+    .then(function (res) {
+      //res.json()
+      res.text();
+      //console.log(res)
+    })
+    .then(function (text) {
+      console.log(text)
+    })
+    .catch(function (err) {
+      console.log('node-fetch error: ', err)
     });
   }
 
@@ -66,24 +83,7 @@ function getTemperatureSetting() {
 
       if (currentTemperature < temperatureSettings.min_temp || currentTemperature > temperatureSettings.max_temp) {
         console.log('Temp NOT in range!');
-        const body = { value1: currentTemperature };
-        
-        fetch('https://maker.ifttt.com/trigger/temp_reading/with/key/' + key, {
-          method: 'post',
-          body:    JSON.stringify(body),
-          headers: { 'Content-Type': 'application/json' },
-        })
-        .then(function (res) {
-          //res.json()
-          res.text();
-          //console.log(res)
-        })
-        .then(function (text) {
-          console.log(text)
-        })
-        .catch(function (err) {
-          console.log('node-fetch error: ', err)
-        });
+        sendIFTTTNotification(currentTemperature);
       }
       else {
         console.log('Temp in range :)')

@@ -35,25 +35,17 @@ app.use(express.static(path.join(__dirname,"public"))); // set a public static d
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
-// couchDB database names
-const temperatureDb = "temperature";
-const temperatureSettingsDb = "temperature_settings";
+const temperatureDb = "temperature"; // couchDB database name
 
 app.get('/', function(req, res){
   res.render('index'); // test page is working
 });
 
-// app index
+// get the user defined temperature settings
 app.get('/settings', function(req, res){
   //res.render('index'); // test page is working
-  /** CouchDB range view
-    function(doc) {
-      if(doc.timestamp) {
-          emit(doc.timestamp, doc);
-      }
-    }
-   */
-  couch.get(temperatureSettingsDb, "/_design/settings/_view/range?descending=true&limit=1").then(
+  // CouchDB range view function(doc) {if(doc.timestamp) {emit(doc.timestamp, doc);}}
+  couch.get(temperatureDb, "/_design/settings/_view/range?descending=true&limit=1").then(
     function (data, headers, status) {
       //console.log(data.data.rows); // if you want to see the output in the node console
       // send a data object called temperature_settings to view/index.ejs  
@@ -62,7 +54,7 @@ app.get('/settings', function(req, res){
       });
     },
     function (err) { 
-      console.log(err); // do something else
+      console.log('Could not get temperature settings', err); 
     }
   );
 });
@@ -79,8 +71,9 @@ app.post('/settings/update', function(req, res){
   // Store settings in Couch DB
   couch.uniqid().then(function (ids) {
     const id = ids[0];
-    couch.insert(temperatureSettingsDb, {
+    couch.insert(temperatureDb, {
       _id: id,
+      type: "temperature_setting",
       min_temp: minTemp,
       max_temp: maxTemp,
       setting_name: settingName,
