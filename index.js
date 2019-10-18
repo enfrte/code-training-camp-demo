@@ -42,21 +42,18 @@ app.get('/', function(req, res){
 });
 
 // get the user defined temperature settings
-app.get('/settings', function(req, res){
+app.get('/settings', async function(req, res){
   //res.render('index'); // test page is working
-  // CouchDB range view function(doc) {if(doc.timestamp) {emit(doc.timestamp, doc);}}
-  couch.get(temperatureDb, "/_design/settings/_view/range?descending=true&limit=1").then(
-    function (data, headers, status) {
-      //console.log(data.data.rows); // if you want to see the output in the node console
-      // send a data object called temperature_settings to view/index.ejs  
-      res.render('settings', {
-        temperature_settings: data.data.rows[0].value
-      });
-    },
-    function (err) { 
-      console.log('Could not get temperature settings', err); 
-    }
-  );
+  //console.log(temperatureSettingRange());
+  try {
+    const getTemperatureSettings = await getTemperatureSettings();
+    res.render('settings', {
+      temperature_settings: getTemperatureSettings
+    });
+  } catch (error) {
+    console.log('Error temperatureSettingRange', error);
+  }
+
 });
 
 // add a new record
@@ -87,5 +84,22 @@ app.post('/settings/update', function(req, res){
       });
   });
 });
+
+function getTemperatureSettings() {
+  return new Promise(function (resolve, reject) {
+    // CouchDB range view function(doc) {if(doc.timestamp) {emit(doc.timestamp, doc);}}
+    couch.get(temperatureDb, "/_design/settings/_view/range?descending=true&limit=1").then(
+      function (data, headers, status) {
+        //console.log(data.data.rows); // if you want to see the output in the node console
+        // send a data object called temperature_settings to view/index.ejs
+        const temperatureSettingRange = data.data.rows[0].value;
+        resolve(temperatureSettingRange);
+      },
+      function (err) { 
+        console.log('Could not get temperature settings', err); 
+      }
+    );
+  });
+}
 
 app.listen(3000, function(){ console.log('Server started on port: 3000'); });
