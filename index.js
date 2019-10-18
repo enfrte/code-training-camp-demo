@@ -4,6 +4,8 @@
 const express = require('express');
 const path = require('path'); // a core module
 const NodeCouchDb = require('node-couchdb');
+const dbCalls = require('./db-calls.js');
+console.log(dbCalls.getTemperatureSetting);
 
 const couch = new NodeCouchDb({
   // credentials used for couchDb server admin 
@@ -32,7 +34,7 @@ app.set('views',path.join(__dirname, 'views')); // A directory or an array of di
 
 // app.use() Mounts the specified middleware function or functions at the specified path: the middleware function is executed when the base of the requested path matches path.
 app.use(express.static(path.join(__dirname,"public"))); // set a public static directory 
-app.use(express.json());
+app.use(express.json()); // replaces body-parser
 app.use(express.urlencoded({extended:false}));
 
 const temperatureDb = "temperature"; // couchDB database name
@@ -46,18 +48,17 @@ app.get('/settings', async function(req, res){
   //res.render('index'); // test page is working
   //console.log(temperatureSettingRange());
   try {
-    const getTemperatureSettings = await getTemperatureSettings();
+    const temperatureSettings = await dbCalls.getTemperatureSettings();
     res.render('settings', {
-      temperature_settings: getTemperatureSettings
+      temperature_settings: temperatureSettings
     });
   } catch (error) {
     console.log('Error temperatureSettingRange', error);
   }
-
 });
 
 // add a new record
-app.post('/settings/update', function(req, res){
+app.post('/settings', function(req, res){
   // the form data 
   const minTemp = req.body.min_temp;
   const maxTemp = req.body.max_temp;
@@ -85,21 +86,8 @@ app.post('/settings/update', function(req, res){
   });
 });
 
-function getTemperatureSettings() {
-  return new Promise(function (resolve, reject) {
-    // CouchDB range view function(doc) {if(doc.timestamp) {emit(doc.timestamp, doc);}}
-    couch.get(temperatureDb, "/_design/settings/_view/range?descending=true&limit=1").then(
-      function (data, headers, status) {
-        //console.log(data.data.rows); // if you want to see the output in the node console
-        // send a data object called temperature_settings to view/index.ejs
-        const temperatureSettingRange = data.data.rows[0].value;
-        resolve(temperatureSettingRange);
-      },
-      function (err) { 
-        console.log('Could not get temperature settings', err); 
-      }
-    );
-  });
-}
+app.get('/monitor', function(req, res){
+  res.render('monitor'); // test page is working
+});
 
-app.listen(3000, function(){ console.log('Server started on port: 3000'); });
+app.listen(process.env.port || 3000, function(){ console.log('Server started on port: 3000'); });

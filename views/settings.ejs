@@ -20,7 +20,7 @@
       <div class="col m8 temperature-column-container">
         <p>Monitor your environment by setting a temperature range. If the temperature is not within this range, you will receive a notification.</p>
         <p>Your temperature range for <span class="tempSetLabel">"<%= temperature_settings.setting_name %>"</span> is currently between <%= temperature_settings.min_temp %> and <%= temperature_settings.max_temp %>°C</p>
-        <form class="temperature-form" method="post" action="/settings/update">
+        <form class="temperature-form" method="post" action="/settings">
           <input id="min_temp" type="hidden" name="min_temp" value="<%= temperature_settings.min_temp %>">
           <input id="max_temp" type="hidden" name="max_temp" value="<%= temperature_settings.max_temp %>">
           <input type="hidden" name="timestamp">
