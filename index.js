@@ -5,24 +5,13 @@ const express = require('express');
 const path = require('path'); // a core module
 const NodeCouchDb = require('node-couchdb');
 const dbCalls = require('./db-calls.js');
-console.log(dbCalls.getTemperatureSetting);
+const sensitive = require('./sensitive.js');
 
-const couch = new NodeCouchDb({
-  // credentials used for couchDb server admin 
-  auth: {
-    user: 'admin',
-    password: 'password'
-  }
-});
+const couch = new NodeCouchDb({ auth: { user: sensitive.couchDbCreds.user, password: sensitive.couchDbCreds.password } }); // credentials used for couchDb server admin
 
-// This just shows you what databases you can access. Outputs to the Node terminal 
+// show available databases  
 /*couch.listDatabases().then(
-  function(dbs) {
-    console.log(dbs);
-  }, 
-  function(err){ 
-    console.log(err)
-  }
+  function(dbs) { console.log(dbs) }, function(err){ console.log(err) }
 );*/
 
 const app = express();
@@ -39,9 +28,8 @@ app.use(express.urlencoded({extended:false}));
 
 const temperatureDb = "temperature"; // couchDB database name
 
-app.get('/', function(req, res){
-  res.render('index'); // test page is working
-});
+// home
+app.get('/', function(req, res){ res.render('index') });
 
 // get the user defined temperature settings
 app.get('/settings', async function(req, res){
@@ -52,9 +40,7 @@ app.get('/settings', async function(req, res){
     res.render('settings', {
       temperature_settings: temperatureSettings
     });
-  } catch (error) {
-    console.log('Error temperatureSettingRange', error);
-  }
+  } catch (error) { console.log('Error temperatureSettingRange', error) }
 });
 
 // add a new record
@@ -77,17 +63,25 @@ app.post('/settings', function(req, res){
       setting_name: settingName,
       timestamp: timestamp
     }).then(
-      function (data, headers, status) {
-        res.redirect('/settings'); 
-      },
-      function (err) {
-        res.send(err);
-      });
+      function (data, headers, status) { res.redirect('/settings') },
+      function (err) { res.send(err) });
   });
 });
 
-app.get('/monitor', function(req, res){
-  res.render('monitor'); // test page is working
+app.get('/monitor', async function(req, res){ 
+  //res.render('monitor');
+  try {
+    const currentTemperature = await dbCalls.getCurrentTemperature();
+    const temperatureSettings = await dbCalls.getTemperatureSettings();
+    const temperatureHistory = await dbCalls.getTemperatureHistory();
+    console.log(temperatureHistory);
+    res.render('monitor', {
+      currentTemperature: currentTemperature,
+      temperatureSettingsMin: temperatureSettings.min_temp,
+      temperatureSettingsMax: temperatureSettings.max_temp,
+      temperatureHistory: temperatureHistory
+    });
+  } catch (error) { console.log('Error getCurrentTemperature', error) } 
 });
 
 app.listen(process.env.port || 3000, function(){ console.log('Server started on port: 3000'); });

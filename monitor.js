@@ -1,4 +1,5 @@
 /**
+ * Monitor checks the temperatue range and sends notifications if needed. 
  * You would probably want to call this with something like cron-node. 
  * To Do:
  * Add timer check. Only send notification if last one was more than 3600 secs ago. Make another db doc for this. 
@@ -6,12 +7,12 @@
 
 const fetch = require('node-fetch');
 const IFTTT = require('./sensitive.js');
-const dbCalls = require('./db-calls.js');
+const dbCalls = require('./db-calls.js'); // calls to the database
 /** Contents of sensitive.js
 const IFTTT = {
     key: 'your_secret_key',
-    ...other sensitive credentials
 }
+...other sensitive credentials
 module.exports = IFTTT;
  */
 

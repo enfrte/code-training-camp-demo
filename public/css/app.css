@@ -72,3 +72,19 @@
   display: flex;
   flex-direction: column;
 }
+
+
+/* monitor page */
+.temperatureGraphicContainer {
+  display: flex;
+  align-items: center;
+}
+
+
+.temperatureGraphic {
+  background-color: darkorange;
+  border-radius: 10%;
+  font-weight: bold;
+  padding: 10px;
+  margin-left: 10px;
+}

@@ -1,16 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Monitoring page</title>
+  <meta charset="UTF-8">
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!--Import materialize.css-->
+  <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+  <link type="text/css" rel="stylesheet" href="css/Chart.min.css"  media="screen,projection"/>
+  <link type="text/css" rel="stylesheet" href="css/app.css"  media="screen,projection"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Monitoring page</title>
 </head>
 <body>
 
+<div class="container">
   <h1>Monitoring page</h1>
-  <h2><%= result %>"</span></h2>
+  <div>
+    <h4 class="temperatureGraphicContainer">
+      The temperature is <span class="temperatureGraphic"><%= currentTemperature.temperatureValue %>C</span>
+    </h4>
+    <h6>
+      <span>It was updated </span>
+      <span id="temperatureMinutesAgo"></span> 
+      <span id="temperatureSecondsAgo"></span> 
+      <span id="temperatureMessageAgo"></span>
+    </h6>
+  </div>
+  <canvas id="temperatureHistory"></canvas>
+</div>
 
-  <script src=""></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/Chart.bundle.min.js"></script>
+<script>
+  let latestTemperatureTime = new Date(<%- JSON.stringify(currentTemperature.recordedDate) %>);
+  let temperatureTimeDifference = getTime() - latestTemperatureTime.getTime();
+  
+  function millisToMinutesAndSeconds(millis) {
+    let minutes = Math.floor(millis / 60000);
+    let seconds = ((millis % 60000) / 1000).toFixed(0);
+    // format a string like "The temperature is 20C It was updated 2 minutes and 41 seconds ago" else "The temperature is 20C It was updated just now"
+    document.querySelector('#temperatureMinutesAgo').innerText = (minutes > 0) ? minutes + ' minutes' : '';
+    document.querySelector('#temperatureSecondsAgo').innerText = (seconds > 0) ? ' and ' + seconds + ' seconds' : '';
+    document.querySelector('#temperatureMessageAgo').innerText = (minutes < 1 && seconds < 1) ? ' just now' : ' ago';    
+  } 
+
+  let temperatureMinutesAgo = millisToMinutesAndSeconds(temperatureTimeDifference);
+
+  // chartjs 
+  let chartJsLabels = <%- JSON.stringify(temperatureHistory.labels) %>;
+  let chartJsData = <%- JSON.stringify(temperatureHistory.data) %>;
+
+  let ctx = document.getElementById('temperatureHistory').getContext('2d');
+  let chart = new Chart(ctx, {
+      // The type of chart we want to create
+      type: 'line',
+
+      // The data for our dataset
+      data: {
+          labels: chartJsLabels,
+          datasets: [{
+              label: 'Temperature',
+              fill: false,
+              borderColor: 'darkorange',
+              pointBackgroundColor: 'blue',
+              pointBorderColo: 'blue',
+              data: chartJsData
+          }]
+      },
+
+      // Configuration options go here
+      options: {
+        layout: {
+            padding: {
+                left: 0,
+                right: 0,
+                top: 30,
+                bottom: 0
+            }
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              min: (function () {
+                let min = Math.min(...chartJsData) - 10;
+                let remainder = min % 5;
+                return min - remainder;
+              })(), // minimum value - rounded down to nearest 5
+              max: 
+              (function () {
+                let max = Math.max(...chartJsData) + 10;
+                let remainder = max % 5;
+                return max - remainder;
+              })(), // maximum value - rounded down to nearest 5
+              stepSize: 5
+            }
+          }]
+        }
+      }
+  });
+
+
+</script>
 </body>
 </html>
