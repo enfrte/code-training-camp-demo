@@ -74,7 +74,6 @@ app.get('/monitor', async function(req, res){
     const currentTemperature = await dbCalls.getCurrentTemperature();
     const temperatureSettings = await dbCalls.getTemperatureSettings();
     const temperatureHistory = await dbCalls.getTemperatureHistory();
-    console.log(temperatureHistory);
     res.render('monitor', {
       currentTemperature: currentTemperature,
       temperatureSettingsMin: temperatureSettings.min_temp,

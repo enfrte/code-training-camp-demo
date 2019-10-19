@@ -18,14 +18,9 @@
   <h1>Monitoring page</h1>
   <div>
     <h4 class="temperatureGraphicContainer">
-      The temperature is <span class="temperatureGraphic"><%= currentTemperature.temperatureValue %>C</span>
+      The latest temperature, <span class="temperatureGraphic"><%= currentTemperature.temperatureValue %>C</span>
+      <span id="temperatureUpdateMessage"></span>
     </h4>
-    <h6>
-      <span>It was updated </span>
-      <span id="temperatureMinutesAgo"></span> 
-      <span id="temperatureSecondsAgo"></span> 
-      <span id="temperatureMessageAgo"></span>
-    </h6>
   </div>
   <canvas id="temperatureHistory"></canvas>
 </div>
@@ -39,10 +34,15 @@
   function millisToMinutesAndSeconds(millis) {
     let minutes = Math.floor(millis / 60000);
     let seconds = ((millis % 60000) / 1000).toFixed(0);
+    //minutes = 1; // test the output
+    //seconds = 1;
     // format a string like "The temperature is 20C It was updated 2 minutes and 41 seconds ago" else "The temperature is 20C It was updated just now"
-    document.querySelector('#temperatureMinutesAgo').innerText = (minutes > 0) ? minutes + ' minutes' : '';
-    document.querySelector('#temperatureSecondsAgo').innerText = (seconds > 0) ? ' and ' + seconds + ' seconds' : '';
-    document.querySelector('#temperatureMessageAgo').innerText = (minutes < 1 && seconds < 1) ? ' just now' : ' ago';    
+    let temperatureUpdateMessage = ' was updated ';
+    temperatureUpdateMessage += (minutes > 0) ? minutes + ' minute(s) ' : '';
+    temperatureUpdateMessage += (minutes > 0 && seconds > 0) ? ' and ' : '';
+    temperatureUpdateMessage += (seconds > 0) ? + seconds + ' second(s) ' : '';
+    temperatureUpdateMessage += (minutes < 1 && seconds < 1) ? ' just now ' : ' ago ';
+    document.querySelector('#temperatureUpdateMessage').innerText = temperatureUpdateMessage; 
   } 
 
   let temperatureMinutesAgo = millisToMinutesAndSeconds(temperatureTimeDifference);
@@ -60,7 +60,7 @@
       data: {
           labels: chartJsLabels,
           datasets: [{
-              label: 'Temperature',
+              label: 'Temperature History',
               fill: false,
               borderColor: 'darkorange',
               pointBackgroundColor: 'blue',
@@ -87,8 +87,7 @@
                 let remainder = min % 5;
                 return min - remainder;
               })(), // minimum value - rounded down to nearest 5
-              max: 
-              (function () {
+              max: (function () {
                 let max = Math.max(...chartJsData) + 10;
                 let remainder = max % 5;
                 return max - remainder;

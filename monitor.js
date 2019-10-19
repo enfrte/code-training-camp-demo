@@ -44,7 +44,7 @@ async function checkTemperatureRange() {
     const temperatureSettings = await dbCalls.getTemperatureSettings();
     const currentTemperature = await dbCalls.getCurrentTemperature();
 
-    if (currentTemperature < temperatureSettings.min_temp || currentTemperature > temperatureSettings.max_temp) {
+    if (currentTemperature.temperatureValue < temperatureSettings.min_temp || currentTemperature.temperatureValue > temperatureSettings.max_temp) {
       console.log('Temp NOT in range!');
       sendIFTTTNotification(currentTemperature);
     }
