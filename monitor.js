@@ -6,7 +6,7 @@
  */
 
 const fetch = require('node-fetch');
-const IFTTT = require('./sensitive.js');
+const sensitive = require('./sensitive.js');
 const dbCalls = require('./db-calls.js'); // calls to the database
 /** Contents of sensitive.js
 const IFTTT = {
@@ -16,7 +16,7 @@ const IFTTT = {
 module.exports = IFTTT;
  */
 
-const key = IFTTT.key;
+const key = sensitive.IFTTT.key;
 
 function sendIFTTTNotification(currentTemperature) {
   const body = { value1: currentTemperature };
@@ -29,7 +29,7 @@ function sendIFTTTNotification(currentTemperature) {
   .then(function (res) {
     //res.json()
     res.text();
-    //console.log(res)
+    //console.log(res);
   })
   .then(function (text) {
     console.log(text)
@@ -46,7 +46,7 @@ async function checkTemperatureRange() {
 
     if (currentTemperature.temperatureValue < temperatureSettings.min_temp || currentTemperature.temperatureValue > temperatureSettings.max_temp) {
       console.log('Temp NOT in range!');
-      sendIFTTTNotification(currentTemperature);
+      sendIFTTTNotification(currentTemperature.temperatureValue);
     }
     else {
       console.log('Temp in range :)')
