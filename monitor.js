@@ -27,12 +27,10 @@ function sendIFTTTNotification(currentTemperature) {
     headers: { 'Content-Type': 'application/json' },
   })
   .then(function (res) {
-    //res.json()
-    res.text();
-    //console.log(res);
+    return res.text();
   })
   .then(function (text) {
-    console.log(text)
+    console.log(text); // success message 
   })
   .catch(function (err) {
     console.log('node-fetch error: ', err)
